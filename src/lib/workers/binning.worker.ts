@@ -100,10 +100,10 @@ function getBins(personaDrawings: PersonaDrawing[], side: string): Bin[] {
         // Enlarge point to brush size.
         // Filter unique points.
         for (let ix = x - radius; ix < x + radius; ix++) {
-          if (ix < 0 || ix > personaDrawing.imgWidth) continue;
+          if (ix < 0 || ix >= personaDrawing.imgWidth) continue;
 
           for (let iy = y - radius; iy < y + radius; iy++) {
-            if (iy < 0 || iy > personaDrawing.imgHeight) continue;
+            if (iy < 0 || iy >= personaDrawing.imgHeight) continue;
 
             const key = `${ix}:${iy}`;
 
