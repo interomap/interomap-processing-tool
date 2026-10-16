@@ -65,11 +65,12 @@ function getBins(personaDrawings: PersonaDrawing[], side: string): Bin[] {
   let progress: number = 0;
 
   for (const personaDrawing of personaDrawings) {
+    const cache = new Set<string>();
+
     for (const stroke of personaDrawing.strokes) {
       if (stroke.points.length < 2) continue;
 
       const path = new THREE.Path();
-      const cache = new Set<string>();
       const radius = stroke.brushSize / 2;
 
       let p1 = stroke.points[0];
@@ -103,8 +104,8 @@ function getBins(personaDrawings: PersonaDrawing[], side: string): Bin[] {
 
           for (let iy = y - radius; iy < y + radius; iy++) {
             if (iy < 0 || iy > personaDrawing.imgHeight) continue;
+
             const key = `${ix}:${iy}`;
-            if (cache.has(key)) continue; // overlapping point, skip it
 
             const drawnPoint: SensationPoint = {
               x: ix,
@@ -120,8 +121,15 @@ function getBins(personaDrawings: PersonaDrawing[], side: string): Bin[] {
               });
               bins[key] = newBin;
             }
-            bins[key].push(drawnPoint);
-            cache.add(key); // add to cache to filter out overlapping points
+
+            if (cache.has(key)) {
+              // Replace this participant’s previous value: later stroke wins.
+              bins[key][bins[key].length - 1] = drawnPoint;
+            } else {
+              // First contribution from this participant at this pixel.
+              bins[key].push(drawnPoint);
+              cache.add(key);
+            }
           }
         }
       }
